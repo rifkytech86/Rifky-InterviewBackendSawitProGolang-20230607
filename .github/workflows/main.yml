@@ -22,7 +22,7 @@ jobs:
         run: go mod download
 
       - name: Run tests and coverage
-        run: go test -coverprofile=coverage.out ./...
+        run: go test -short -coverprofile coverage.out -v ./...
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
