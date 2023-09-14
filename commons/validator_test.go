@@ -3,7 +3,6 @@ package commons
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
@@ -16,10 +15,10 @@ func registerTestValidation() *validator.Validate {
 		fmt.Printf("unable to register custom validator: %s\n", err.Error())
 	}
 	if err := validate.RegisterValidation(ValidatorPassword, ValidatePassword); err != nil {
-		panic(errors.ErrRegisterValidatorPassword.Error())
+		panic(ErrRegisterValidatorPassword.Error())
 	}
 	if err := validate.RegisterValidation(ValidatorFullName, ValidationFullName); err != nil {
-		panic(errors.ErrRegisterValidatorPassword.Error())
+		panic(ErrRegisterValidatorPassword.Error())
 	}
 	return validate
 }
@@ -199,7 +198,7 @@ func TestGetCustomMessage(t *testing.T) {
 				msgError: ValidatorPassword,
 				field:    "password",
 			},
-			want: fmt.Sprintf(errors.ErrorValidatorPassword, "password"),
+			want: fmt.Sprintf(ErrorValidatorPassword, "password"),
 		},
 		{
 			name: "test ValidatorPhoneNumber",
@@ -207,7 +206,7 @@ func TestGetCustomMessage(t *testing.T) {
 				msgError: ValidatorPhoneNumber,
 				field:    "phone_number",
 			},
-			want: fmt.Sprintf(errors.ErrorValidatorPhoneNumber, "phone_number"),
+			want: fmt.Sprintf(ErrorValidatorPhoneNumber, "phone_number"),
 		},
 		{
 			name: "test ValidatorFullName",
@@ -215,7 +214,7 @@ func TestGetCustomMessage(t *testing.T) {
 				msgError: ValidatorFullName,
 				field:    "full_name",
 			},
-			want: fmt.Sprintf(errors.ErrorValidatorFullName, "full_name"),
+			want: fmt.Sprintf(ErrorValidatorFullName, "full_name"),
 		},
 		{
 			name: "test default",
@@ -223,7 +222,7 @@ func TestGetCustomMessage(t *testing.T) {
 				msgError: "default",
 				field:    "default",
 			},
-			want: fmt.Sprintf(errors.ErrorDefaultValidator, "default", "default"),
+			want: fmt.Sprintf(ErrorDefaultValidator, "default", "default"),
 		},
 	}
 	for _, tt := range tests {

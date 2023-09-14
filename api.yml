@@ -68,23 +68,20 @@ paths:
                 - password
       responses:
         '200':
-          description: Test return
+          description: Response login API success
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginResponse"
-        '401':
-          description: Unauthorized
+        '400':
+          description: Bad Request Code
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: "#/components/schemas/ErrorResponse"
   /registration:
     post:
-      summary: User Login
+      summary: This endpoint for registration users
       operationId: Registration
       requestBody:
         required: true
@@ -126,15 +123,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RegistrationResponse"
-        '401':
-          description: Unauthorized
+        '400':
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: "#/components/schemas/ErrorResponse"
   /get-profile:
     get:
       summary: This is just a get my profile endpoint.
@@ -148,8 +142,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GetMyProfileResponse"
-        '404':
+        '400':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: Forbiden Code
           content:
             application/json:
               schema:
@@ -195,10 +195,19 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
+                $ref: "#/components/schemas/ErrorResponse"
+        '403':
+          description: Forbiden Code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HelloResponse:
@@ -211,34 +220,100 @@ components:
     LoginResponse:
       type: object
       properties:
-        user_id:
+        code:
           type: integer
-        auth_jwt:
+        message:
           type: string
+        data:
+          type: object
+          properties:
+            user_id:
+              type: integer
+            auth_jwt:
+              type: string
+      example:
+        code: 200
+        message: success
+        data:
+          user_id: 1
+          auth_jwt: "auth rsa 256"
     RegistrationResponse:
       type: object
       properties:
-        user_id:
+        code:
           type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              description: user id registered
+      example:
+        code: 200
+        message: success
+        data:
+          user_id: 1
     ResponseUpdateProfile:
       type: object
       properties:
-        user_id:
+        code:
           type: integer
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            user_id:
+              type: integer
+              description: user id affected by updated
+      example:
+        code: 200
+        message: success
+        data:
+          user_id: 1
     GetMyProfileResponse:
       type: object
       properties:
-        full_name:
-          type: string
-        phone_number:
-          type: string
-    ErrorResponse:
-      type: object
-      required:
-        - message
-      properties:
+        code:
+          type: integer
         message:
           type: string
+        data:
+          type: object
+          properties:
+            full_name:
+              type: string
+              description: full_name is data catch from database by token
+            phone_number:
+              type: string
+              description: phone_number is data catch from database by token
+      example:
+        code: 200
+        message: success
+        data:
+          full_name: "sawit pro"
+          phone_number: "+6237087630662"
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        errors:
+          type: string
+          properties:
+            list_error:
+              type: array
+              items:
+                type: string
+                description: List of errors
+      example:
+        code: 400
+        errors:
+          list_error:
+            - Password does not meet the password requirements
+        message: invalid request
   securitySchemes:
     bearerAuth:
       type: http

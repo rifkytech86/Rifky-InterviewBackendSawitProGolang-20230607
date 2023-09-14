@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-//go:generate mockery --name IJWTRepository
-type IJWTRepository interface {
+//go:generate mockery --name IJWTRSAToken
+type IJWTRSAToken interface {
 	GenerateToken(userID int, expiredTime int) (string, error)
 	ParserToken(tokenString string) (int, error)
 }
@@ -25,7 +25,7 @@ type jwtRSATokenRepository struct {
 	privateKey []byte
 }
 
-func NewJWTRSATokenRepository(privateKey []byte, publicKey []byte) IJWTRepository {
+func NewJWTRSAToken(privateKey []byte, publicKey []byte) IJWTRSAToken {
 	return &jwtRSATokenRepository{
 		publicKey:  publicKey,
 		privateKey: privateKey,

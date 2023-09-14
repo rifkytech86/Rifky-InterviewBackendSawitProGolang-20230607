@@ -4,7 +4,7 @@ import (
 	originalError "errors"
 	"github.com/SawitProRecruitment/UserService/bootstrap"
 	"github.com/SawitProRecruitment/UserService/bootstrap/mocks"
-	"github.com/SawitProRecruitment/UserService/errors"
+	"github.com/SawitProRecruitment/UserService/commons"
 	"github.com/SawitProRecruitment/UserService/models"
 	"github.com/SawitProRecruitment/UserService/repository"
 	mockRepository "github.com/SawitProRecruitment/UserService/repository/mocks"
@@ -44,7 +44,7 @@ func TestServer_Login(t *testing.T) {
 		Harsher               bootstrap.IBcryptHasher
 		Env                   *bootstrap.ENV
 		Logger                bootstrap.ILogger
-		JWTRepository         bootstrap.IJWTRepository
+		JWTRepository         bootstrap.IJWTRSAToken
 	}
 	type respMockGetUserBYPhone struct {
 		user *models.User
@@ -96,7 +96,7 @@ func TestServer_Login(t *testing.T) {
 			},
 			respMockValidator: []bootstrap.ValidationError{},
 			respMockGetUserBYPhone: respMockGetUserBYPhone{
-				err: errors.ErrorInternalServer,
+				err: commons.ErrorInternalServer,
 			},
 			wantErr: false,
 		},
@@ -112,7 +112,7 @@ func TestServer_Login(t *testing.T) {
 					UserID: 1,
 				},
 			},
-			resMockVerifyPassword: errors.ErrorInternalServer,
+			resMockVerifyPassword: commons.ErrorInternalServer,
 			wantErr:               false,
 		},
 		{
@@ -129,7 +129,7 @@ func TestServer_Login(t *testing.T) {
 			},
 			resMockVerifyPassword: nil,
 			resMockJWT: resMockJWT{
-				err: errors.ErrorInternalServer,
+				err: commons.ErrorInternalServer,
 			},
 			wantErr: false,
 		},
@@ -149,7 +149,7 @@ func TestServer_Login(t *testing.T) {
 			resMockJWT: resMockJWT{
 				err: nil,
 			},
-			resMocUpdateUsers: errors.ErrorInternalServer,
+			resMocUpdateUsers: commons.ErrorInternalServer,
 			wantErr:           false,
 		},
 		{
@@ -209,7 +209,7 @@ func TestServer_Registration(t *testing.T) {
 		Harsher               bootstrap.IBcryptHasher
 		Env                   *bootstrap.ENV
 		Logger                bootstrap.ILogger
-		JWTRepository         bootstrap.IJWTRepository
+		JWTRepository         bootstrap.IJWTRSAToken
 	}
 	type resMockHasPassword struct {
 		hasPassword string
@@ -258,7 +258,7 @@ func TestServer_Registration(t *testing.T) {
 			},
 			respMockValidator: []bootstrap.ValidationError{},
 			resMockHasPassword: resMockHasPassword{
-				err: errors.ErrorInternalServer,
+				err: commons.ErrorInternalServer,
 			},
 			wantErr: false,
 		},
@@ -272,7 +272,7 @@ func TestServer_Registration(t *testing.T) {
 				err: nil,
 			},
 			respMockInsert: respMockInsert{
-				err: errors.ErrorInternalServer,
+				err: commons.ErrorInternalServer,
 			},
 			wantErr: false,
 		},
@@ -337,7 +337,7 @@ func TestServer_GetMyProfile(t *testing.T) {
 		Harsher               bootstrap.IBcryptHasher
 		Env                   *bootstrap.ENV
 		Logger                bootstrap.ILogger
-		JWTRepository         bootstrap.IJWTRepository
+		JWTRepository         bootstrap.IJWTRSAToken
 	}
 	type respMockGetUserByID struct {
 		user *models.User
@@ -366,7 +366,7 @@ func TestServer_GetMyProfile(t *testing.T) {
 				c: setContext,
 			},
 			respMockGetUserByID: respMockGetUserByID{
-				err: errors.ErrorInternalServer,
+				err: commons.ErrorInternalServer,
 			},
 			wantErr: false,
 		},
@@ -412,7 +412,7 @@ func TestServer_UpdateProfile(t *testing.T) {
 		Harsher               bootstrap.IBcryptHasher
 		Env                   *bootstrap.ENV
 		Logger                bootstrap.ILogger
-		JWTRepository         bootstrap.IJWTRepository
+		JWTRepository         bootstrap.IJWTRSAToken
 	}
 	type args struct {
 		c echo.Context
@@ -458,7 +458,7 @@ func TestServer_UpdateProfile(t *testing.T) {
 			args: args{
 				c: setContext,
 			},
-			resMocUpdateUsers: originalError.New(errors.DuplicateKey),
+			resMocUpdateUsers: originalError.New(commons.DuplicateKey),
 			respMockValidator: []bootstrap.ValidationError{},
 			wantErr:           false,
 		},
@@ -467,7 +467,7 @@ func TestServer_UpdateProfile(t *testing.T) {
 			args: args{
 				c: setContext,
 			},
-			resMocUpdateUsers: errors.ErrorInternalServer,
+			resMocUpdateUsers: commons.ErrorInternalServer,
 			respMockValidator: []bootstrap.ValidationError{},
 			wantErr:           false,
 		},

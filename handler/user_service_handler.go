@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"github.com/SawitProRecruitment/UserService/commons"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/models"
 	"github.com/labstack/echo/v4"
@@ -20,7 +19,7 @@ func (s *Server) Login(c echo.Context) error {
 	req := new(generated.LoginJSONBody)
 	if err := c.Bind(req); err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorBindRequest.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorBindRequest.Error())
 	}
 
 	validatorErrors := s.Validator.Struct(req)
@@ -30,27 +29,27 @@ func (s *Server) Login(c echo.Context) error {
 			errorMessages = append(errorMessages, commons.GetCustomMessage(err.Error, err.Field))
 		}
 		s.Logger.Error(errorMessages)
-		return commons.ErrorResponses(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error(), errorMessages)
+		return commons.ErrorResponses(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error(), errorMessages)
 	}
 
 	// get user from databases
 	user, err := s.UserServiceRepository.GetUserByPhone(ctx, req.PhoneNumber)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error())
 	}
 
 	err = s.Harsher.VerifyPassword(user.UserPassword, req.Password)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error())
 	}
 
 	// generate token jwt rs256
 	token, err := s.JWTRepository.GenerateToken(user.UserID, s.Env.ExpiredAuthTime)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusInternalServerError, errors.ErrorInternalServer.Error())
+		return commons.ErrorResponse(c, http.StatusInternalServerError, commons.ErrorInternalServer.Error())
 	}
 
 	fieldUpdate := map[string]interface{}{
@@ -60,13 +59,18 @@ func (s *Server) Login(c echo.Context) error {
 	err = s.UserServiceRepository.UpdateUser(ctx, user.UserID, fieldUpdate)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusInternalServerError, errors.ErrorInternalServer.Error())
+		return commons.ErrorResponse(c, http.StatusInternalServerError, commons.ErrorInternalServer.Error())
 	}
 
-	resp := generated.LoginResponse{}
-	resp.UserId = &user.UserID
-	resp.AuthJwt = &token
-	return commons.SuccessResponse(c, http.StatusOK, resp)
+	resp := generated.LoginResponse{
+		Data: &struct {
+			AuthJwt *string `json:"auth_jwt,omitempty"`
+			UserId  *int    `json:"user_id,omitempty"`
+		}{},
+	}
+	resp.Data.UserId = &user.UserID
+	resp.Data.AuthJwt = &token
+	return commons.SuccessResponse(c, http.StatusOK, resp.Data)
 }
 
 // Registration is used for registration users
@@ -88,12 +92,12 @@ func (s *Server) Registration(c echo.Context) error {
 			errorMessages = append(errorMessages, commons.GetCustomMessage(err.Error, err.Field))
 		}
 		s.Logger.Error(errorMessages)
-		return commons.ErrorResponses(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error(), errorMessages)
+		return commons.ErrorResponses(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error(), errorMessages)
 	}
 	hasPassword, err := s.Harsher.HashPassword(req.Password)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error())
 	}
 	payloadDataInsert := models.User{
 		UserFullName:    req.FullName,
@@ -107,14 +111,17 @@ func (s *Server) Registration(c echo.Context) error {
 		return commons.ErrorResponse(c, http.StatusBadRequest, err.Error())
 	}
 	if lastInsertID == 0 {
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorInternalServer.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorInternalServer.Error())
 	}
 	userID := int(lastInsertID)
 	resp := generated.RegistrationResponse{
-		UserId: &userID,
+		Data: &struct {
+			UserId *int `json:"user_id,omitempty"`
+		}{},
 	}
+	resp.Data.UserId = &userID
 
-	return commons.SuccessResponse(c, http.StatusCreated, resp)
+	return commons.SuccessResponse(c, http.StatusCreated, resp.Data)
 }
 
 // GetMyProfile is handler for get data user by authorization
@@ -124,19 +131,23 @@ func (s *Server) GetMyProfile(c echo.Context) error {
 	iUserID := c.Get("userID")
 	userID, ok := iUserID.(int)
 	if !ok {
-		s.Logger.Error(errors.ErrorGetUserID)
-		return errors.ErrorGetUserID
+		s.Logger.Error(commons.ErrorGetUserID)
+		return commons.ErrorGetUserID
 	}
 	user, err := s.UserServiceRepository.GetUserByUserID(ctx, userID)
 	if err != nil {
 		s.Logger.Error(err)
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error())
 	}
-	resp := &generated.GetMyProfileResponse{
-		FullName:    &user.UserFullName,
-		PhoneNumber: &user.UserPhoneNumber,
+	resp := generated.GetMyProfileResponse{
+		Data: &struct {
+			FullName    *string `json:"full_name,omitempty"`
+			PhoneNumber *string `json:"phone_number,omitempty"`
+		}{},
 	}
-	return commons.SuccessResponse(c, http.StatusOK, resp)
+	resp.Data.FullName = &user.UserFullName
+	resp.Data.PhoneNumber = &user.UserPhoneNumber
+	return commons.SuccessResponse(c, http.StatusOK, resp.Data)
 }
 
 // UpdateProfile is handler for update profile by authorization
@@ -156,13 +167,13 @@ func (s *Server) UpdateProfile(c echo.Context) error {
 		for _, err := range validatorErrors {
 			errorMessages = append(errorMessages, commons.GetCustomMessage(err.Error, err.Field))
 		}
-		return commons.ErrorResponses(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error(), errorMessages)
+		return commons.ErrorResponses(c, http.StatusBadRequest, commons.ErrorInvalidRequest.Error(), errorMessages)
 	}
 
 	iUserID := c.Get("userID")
 	userID, ok := iUserID.(int)
 	if !ok {
-		return commons.ErrorResponse(c, http.StatusBadRequest, errors.ErrorGetUserID.Error())
+		return commons.ErrorResponse(c, http.StatusBadRequest, commons.ErrorGetUserID.Error())
 	}
 
 	fieldUpdate := map[string]interface{}{
@@ -172,14 +183,18 @@ func (s *Server) UpdateProfile(c echo.Context) error {
 	err := s.UserServiceRepository.UpdateUser(ctx, userID, fieldUpdate)
 	if err != nil {
 		s.Logger.Error(err)
-		if strings.Contains(err.Error(), errors.DuplicateKey) {
-			return commons.ErrorResponse(c, http.StatusConflict, errors.ErrorPhoneNumberAlreadyExist.Error())
+		if strings.Contains(err.Error(), commons.DuplicateKey) {
+			return commons.ErrorResponse(c, http.StatusConflict, commons.ErrorPhoneNumberAlreadyExist.Error())
 		}
-		return commons.ErrorResponse(c, http.StatusInternalServerError, errors.ErrorInternalServer.Error())
+		return commons.ErrorResponse(c, http.StatusInternalServerError, commons.ErrorInternalServer.Error())
 	}
+
 	resp := generated.ResponseUpdateProfile{
-		UserId: &userID,
+		Data: &struct {
+			UserId *int `json:"user_id,omitempty"`
+		}{},
 	}
-	return commons.SuccessResponse(c, http.StatusAccepted, resp)
+	resp.Data.UserId = &userID
+	return commons.SuccessResponse(c, http.StatusOK, resp.Data)
 
 }

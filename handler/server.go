@@ -11,7 +11,7 @@ type Server struct {
 	Harsher               bootstrap.IBcryptHasher
 	Env                   *bootstrap.ENV
 	Logger                bootstrap.ILogger
-	JWTRepository         bootstrap.IJWTRepository
+	JWTRepository         bootstrap.IJWTRSAToken
 }
 
 type NewServerOptions struct {
@@ -20,7 +20,7 @@ type NewServerOptions struct {
 	Harsher               bootstrap.IBcryptHasher
 	Env                   *bootstrap.ENV
 	Logger                bootstrap.ILogger
-	JWTRepository         bootstrap.IJWTRepository
+	JWTRepository         bootstrap.IJWTRSAToken
 }
 
 func NewServer(opts NewServerOptions) *Server {

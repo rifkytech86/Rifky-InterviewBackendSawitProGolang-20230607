@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/SawitProRecruitment/UserService/errors"
+	"github.com/SawitProRecruitment/UserService/commons"
 	"github.com/labstack/gommon/log"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -182,7 +182,7 @@ func Test_echoLogger_convertMessage(t *testing.T) {
 			name:   "test convert message type error",
 			fields: fields{Logger: nil},
 			args: args{
-				message: errors.ErrorInvalidRequest,
+				message: commons.ErrorInvalidRequest,
 			},
 			want: "invalid request:",
 		},

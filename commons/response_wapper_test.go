@@ -1,7 +1,6 @@
 package commons
 
 import (
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -30,7 +29,7 @@ func TestErrorResponse(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := ErrorResponse(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error())
+	err := ErrorResponse(c, http.StatusBadRequest, ErrorInvalidRequest.Error())
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)
@@ -44,7 +43,7 @@ func TestErrorResponses(t *testing.T) {
 	rec := httptest.NewRecorder()
 	c := e.NewContext(req, rec)
 
-	err := ErrorResponses(c, http.StatusBadRequest, errors.ErrorInvalidRequest.Error(), []string{"error 1", "error 2"})
+	err := ErrorResponses(c, http.StatusBadRequest, ErrorInvalidRequest.Error(), []string{"error 1", "error 2"})
 	assert.NoError(t, err)
 
 	assert.Equal(t, http.StatusBadRequest, rec.Code)

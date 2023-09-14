@@ -4,7 +4,6 @@ import (
 	"github.com/SawitProRecruitment/UserService/bootstrap"
 	mockBootstrap "github.com/SawitProRecruitment/UserService/bootstrap/mocks"
 	"github.com/SawitProRecruitment/UserService/commons"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/SawitProRecruitment/UserService/handler"
 	"github.com/SawitProRecruitment/UserService/models"
 	"github.com/SawitProRecruitment/UserService/repository/mocks"
@@ -19,15 +18,15 @@ import (
 
 func registerValidator(h handler.Server) {
 	if err := h.Validator.RegisterValidation(commons.ValidatorPhoneNumber, commons.ValidatePhoneNumber); err != nil {
-		panic(errors.ErrRegisterValidatorPhoneNumber.Error())
+		panic(commons.ErrRegisterValidatorPhoneNumber.Error())
 	}
 
 	if err := h.Validator.RegisterValidation(commons.ValidatorPassword, commons.ValidatePassword); err != nil {
-		panic(errors.ErrRegisterValidatorPassword.Error())
+		panic(commons.ErrRegisterValidatorPassword.Error())
 	}
 
 	if err := h.Validator.RegisterValidation(commons.ValidatorFullName, commons.ValidationFullName); err != nil {
-		panic(errors.ErrRegisterValidatorFullName.Error())
+		panic(commons.ErrRegisterValidatorFullName.Error())
 	}
 
 }
@@ -74,7 +73,7 @@ func Test_Endoint(t *testing.T) {
 	h2.Logger = bootstrap.NewEchoLogger()
 	registerValidator(h2)
 	mocksUserService := new(mocks.IUserServicePointRepository)
-	mocksUserService.On("GetUserByPhone", mock.Anything, mock.Anything).Return(nil, errors.ErrorInvalidRequest)
+	mocksUserService.On("GetUserByPhone", mock.Anything, mock.Anything).Return(nil, commons.ErrorInvalidRequest)
 	h2.UserServiceRepository = mocksUserService
 	if assert.NoError(t, h2.Login(c2)) {
 		assert.Equal(t, http.StatusBadRequest, rec2.Code)
@@ -95,7 +94,7 @@ func Test_Endoint(t *testing.T) {
 	mocksUserService.On("GetUserByPhone", mock.Anything, mock.Anything).Return(&models.User{}, nil)
 	h3.UserServiceRepository = mocksUserService
 	mockHasser := new(mockBootstrap.IBcryptHasher)
-	mockHasser.On("VerifyPassword", mock.Anything, mock.Anything).Return(errors.ErrorInvalidRequest)
+	mockHasser.On("VerifyPassword", mock.Anything, mock.Anything).Return(commons.ErrorInvalidRequest)
 	h3.Harsher = mockHasser
 	if assert.NoError(t, h3.Login(c3)) {
 		assert.Equal(t, http.StatusBadRequest, rec3.Code)
@@ -118,7 +117,7 @@ func Test_Endoint(t *testing.T) {
 	mockHasser.On("VerifyPassword", mock.Anything, mock.Anything).Return(nil)
 	h4.Harsher = mockHasser
 	mockJWTRepository := new(mockBootstrap.IJWTRepository)
-	mockJWTRepository.On("GenerateToken", mock.Anything, mock.Anything).Return("", errors.ErrorInvalidRequest)
+	mockJWTRepository.On("GenerateToken", mock.Anything, mock.Anything).Return("", commons.ErrorInvalidRequest)
 	h4.JWTRepository = mockJWTRepository
 	if assert.NoError(t, h4.Login(c4)) {
 		assert.Equal(t, http.StatusInternalServerError, rec4.Code)
@@ -136,7 +135,7 @@ func Test_Endoint(t *testing.T) {
 	registerValidator(h5)
 	mocksUserService = new(mocks.IUserServicePointRepository)
 	mocksUserService.On("GetUserByPhone", mock.Anything, mock.Anything).Return(&models.User{}, nil)
-	mocksUserService.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(errors.ErrorInvalidRequest)
+	mocksUserService.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(commons.ErrorInvalidRequest)
 	h5.UserServiceRepository = mocksUserService
 	mockHasser = new(mockBootstrap.IBcryptHasher)
 	mockHasser.On("VerifyPassword", mock.Anything, mock.Anything).Return(nil)

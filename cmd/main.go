@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/SawitProRecruitment/UserService/bootstrap"
 	"github.com/SawitProRecruitment/UserService/commons"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/SawitProRecruitment/UserService/generated"
 	"net/http"
 	"strings"
@@ -18,28 +17,28 @@ var unRestricted = map[string]bool{
 	"/registration": true,
 }
 
-func customMiddleware(jwt bootstrap.IJWTRepository) echo.MiddlewareFunc {
+func customMiddleware(jwt bootstrap.IJWTRSAToken) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			path := c.Request().URL.Path
 			if isRestricted := unRestricted[path]; !isRestricted {
 				authHeader := c.Request().Header.Get(echo.HeaderAuthorization)
 				if authHeader == "" {
-					return commons.ErrorResponse(c, http.StatusForbidden, errors.ErrMissingAuthorizationHeader.Error())
+					return commons.ErrorResponse(c, http.StatusForbidden, commons.ErrMissingAuthorizationHeader.Error())
 				}
 
 				splitToken := strings.Split(authHeader, "Bearer ")
 				if len(splitToken) != 2 {
-					return commons.ErrorResponse(c, http.StatusForbidden, errors.ErrInvalidTokenFormat.Error())
+					return commons.ErrorResponse(c, http.StatusForbidden, commons.ErrInvalidTokenFormat.Error())
 				}
 
 				tokenString := splitToken[1]
 				userID, err := jwt.ParserToken(tokenString)
 				if err != nil {
-					return commons.ErrorResponse(c, http.StatusForbidden, errors.ErrInvalidToken.Error())
+					return commons.ErrorResponse(c, http.StatusForbidden, commons.ErrInvalidToken.Error())
 				}
 				if userID == 0 {
-					return commons.ErrorResponse(c, http.StatusForbidden, errors.ErrInvalidToken.Error())
+					return commons.ErrorResponse(c, http.StatusForbidden, commons.ErrInvalidToken.Error())
 				}
 				c.Set("userID", userID)
 				return next(c)
@@ -50,7 +49,7 @@ func customMiddleware(jwt bootstrap.IJWTRepository) echo.MiddlewareFunc {
 }
 
 func main() {
-
+	// initial injection
 	app := bootstrap.NewApp()
 
 	e := echo.New()

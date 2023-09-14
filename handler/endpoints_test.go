@@ -16,7 +16,7 @@ func TestServer_Hello(t *testing.T) {
 		Harsher               bootstrap.IBcryptHasher
 		Env                   *bootstrap.ENV
 		Logger                bootstrap.ILogger
-		JWTRepository         bootstrap.IJWTRepository
+		JWTRepository         bootstrap.IJWTRSAToken
 	}
 	type args struct {
 		ctx    echo.Context

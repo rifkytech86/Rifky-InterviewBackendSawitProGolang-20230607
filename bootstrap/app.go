@@ -2,7 +2,6 @@ package bootstrap
 
 import (
 	"github.com/SawitProRecruitment/UserService/commons"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"io/ioutil"
 )
 
@@ -11,7 +10,7 @@ type Application struct {
 	PostgresClient *PostgresClient
 	Validator      IValidator
 	Harsher        IBcryptHasher
-	Jwt            IJWTRepository
+	Jwt            IJWTRSAToken
 	Logger         ILogger
 }
 
@@ -26,26 +25,26 @@ func NewApp() Application {
 	reader := commons.NewFileReader()
 	privateKeyBytes, err := reader.ReadFile("private_key.pem")
 	if err != nil {
-		panic(errors.ErrInvalidLoadPrivateKey.Error())
+		panic(commons.ErrInvalidLoadPrivateKey.Error())
 	}
 
 	publicKeyBytes, err := ioutil.ReadFile("public_key.pem")
 	if err != nil {
-		panic(errors.ErrInvalidLoadPublicKey.Error())
+		panic(commons.ErrInvalidLoadPublicKey.Error())
 	}
-	app.Jwt = NewJWTRSATokenRepository(privateKeyBytes, publicKeyBytes)
+	app.Jwt = NewJWTRSAToken(privateKeyBytes, publicKeyBytes)
 
 	app.Validator = NewCustomValidator()
 	if err := app.Validator.RegisterValidation(commons.ValidatorPhoneNumber, commons.ValidatePhoneNumber); err != nil {
-		panic(errors.ErrRegisterValidatorPhoneNumber.Error())
+		panic(commons.ErrRegisterValidatorPhoneNumber.Error())
 	}
 
 	if err := app.Validator.RegisterValidation(commons.ValidatorPassword, commons.ValidatePassword); err != nil {
-		panic(errors.ErrRegisterValidatorPassword.Error())
+		panic(commons.ErrRegisterValidatorPassword.Error())
 	}
 
 	if err := app.Validator.RegisterValidation(commons.ValidatorFullName, commons.ValidationFullName); err != nil {
-		panic(errors.ErrRegisterValidatorFullName.Error())
+		panic(commons.ErrRegisterValidatorFullName.Error())
 	}
 	return *app
 }

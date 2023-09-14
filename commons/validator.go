@@ -2,7 +2,6 @@ package commons
 
 import (
 	"fmt"
-	"github.com/SawitProRecruitment/UserService/errors"
 	"github.com/go-playground/validator/v10"
 	"regexp"
 )
@@ -78,20 +77,20 @@ func checkHasSpecialCharNumberCapital(password string) bool {
 
 func GetCustomMessage(msgError string, field string) string {
 	if msgError == ValidatorPassword {
-		customErrorMessage := fmt.Sprintf(errors.ErrorValidatorPassword, field)
+		customErrorMessage := fmt.Sprintf(ErrorValidatorPassword, field)
 		return customErrorMessage
 	}
 
 	if msgError == ValidatorPhoneNumber {
-		customErrorMessage := fmt.Sprintf(errors.ErrorValidatorPhoneNumber, field)
+		customErrorMessage := fmt.Sprintf(ErrorValidatorPhoneNumber, field)
 		return customErrorMessage
 	}
 
 	if msgError == ValidatorFullName {
-		customErrorMessage := fmt.Sprintf(errors.ErrorValidatorFullName, field)
+		customErrorMessage := fmt.Sprintf(ErrorValidatorFullName, field)
 		return customErrorMessage
 	}
 
-	return fmt.Sprintf(errors.ErrorDefaultValidator, field, msgError)
+	return fmt.Sprintf(ErrorDefaultValidator, field, msgError)
 
 }

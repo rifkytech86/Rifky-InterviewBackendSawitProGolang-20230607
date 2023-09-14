@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/SawitProRecruitment/UserService/bootstrap"
-	"github.com/SawitProRecruitment/UserService/errors"
+	"github.com/SawitProRecruitment/UserService/commons"
 	"github.com/SawitProRecruitment/UserService/models"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -50,7 +50,7 @@ func Test_userServiceRepository_GetUserByPhone(t *testing.T) {
 		{
 			phoneNumber:    "123456789",
 			expectedResult: nil,
-			expectedError:  errors.ErrorUserNotFound,
+			expectedError:  commons.ErrorUserNotFound,
 			mockBehavior: func() {
 				mock.ExpectQuery("SELECT user_id, user_phone_number, user_full_name, user_password, user_logged").
 					WithArgs("123456789").
@@ -127,7 +127,7 @@ func Test_userServiceRepository_InsetUser(t *testing.T) {
 				UserLogged:      1,
 			},
 			expectedID:    0,
-			expectedError: errors.ErrorUserAlreadyExist,
+			expectedError: commons.ErrorUserAlreadyExist,
 			mockBehavior: func() {
 				mock.ExpectBegin()
 
@@ -192,7 +192,7 @@ func Test_userServiceRepository_GetUserByUserID(t *testing.T) {
 		{
 			userID:         2,
 			expectedResult: nil,
-			expectedError:  errors.ErrorUserNotFound,
+			expectedError:  commons.ErrorUserNotFound,
 			mockBehavior: func() {
 				mock.ExpectQuery("SELECT user_id, user_phone_number, user_full_name, user_password, user_logged").
 					WithArgs(2).

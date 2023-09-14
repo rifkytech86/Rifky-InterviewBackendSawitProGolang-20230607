@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/SawitProRecruitment/UserService/bootstrap"
-	"github.com/SawitProRecruitment/UserService/errors"
+	"github.com/SawitProRecruitment/UserService/commons"
 	"github.com/SawitProRecruitment/UserService/models"
 )
 
@@ -35,7 +35,7 @@ func (u *userServiceRepository) GetUserByPhone(ctx context.Context, phoneNumber 
 		Scan(&user.UserID, &user.UserPhoneNumber, &user.UserFullName, &user.UserPassword, &user.UserLogged)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.ErrorUserNotFound
+			return nil, commons.ErrorUserNotFound
 		}
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (u *userServiceRepository) UpdateUser(ctx context.Context, userID int, fiel
 	err = tx.Commit()
 	if err != nil {
 		tx.Rollback()
-		return errors.ErrorInternalServer
+		return commons.ErrorInternalServer
 	}
 	return err
 }
@@ -83,18 +83,18 @@ func (u *userServiceRepository) InsetUser(ctx context.Context, data models.User)
 	}
 	stmt, err := u.db.Db.PrepareContext(ctx, "INSERT INTO users (user_phone_number, user_full_name, user_password, user_logged) VALUES ($1, $2, $3, $4)  RETURNING user_id")
 	if err != nil {
-		return 0, errors.ErrorInternalServer
+		return 0, commons.ErrorInternalServer
 	}
 
 	err = stmt.QueryRowContext(ctx, data.UserPhoneNumber, data.UserFullName, data.UserPassword, data.UserLogged).Scan(&lastInsertID)
 	if err != nil {
 		// Rollback the transaction if there's an error
 		tx.Rollback()
-		return 0, errors.ErrorUserAlreadyExist
+		return 0, commons.ErrorUserAlreadyExist
 	}
 	err = tx.Commit()
 	if err != nil {
-		return 0, errors.ErrorInternalServer
+		return 0, commons.ErrorInternalServer
 	}
 	return lastInsertID, nil
 }
@@ -107,7 +107,7 @@ func (u *userServiceRepository) GetUserByUserID(ctx context.Context, userID int)
 		Scan(&user.UserID, &user.UserPhoneNumber, &user.UserFullName, &user.UserPassword, &user.UserLogged)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.ErrorUserNotFound
+			return nil, commons.ErrorUserNotFound
 		}
 		return nil, err
 	}

@@ -61,6 +61,8 @@ Aplicant
 |---------------|-----------------------|
 | Rifky Rachman |rifky.rachman@gmail.com|
 
+[![Code Coverage](https://codecov.io/gh/rifkytech86/Rifky-InterviewBackendSawitProGolang-20230607/branch/main/graph/badge.svg)](https://codecov.io/gh/rifkytech86/Rifky-InterviewBackendSawitProGolang-20230607})
+
 ### The Complete Project Folder Structure
 ```
 📦 root

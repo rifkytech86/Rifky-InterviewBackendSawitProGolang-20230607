@@ -1,7 +1,7 @@
 package bootstrap
 
 import (
-	"github.com/SawitProRecruitment/UserService/errors"
+	"github.com/SawitProRecruitment/UserService/commons"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,7 +19,7 @@ func NewPasswordHasher() IBcryptHasher {
 func (b *bcryptPasswordHasher) HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", errors.ErrorGeneratePassword
+		return "", commons.ErrorGeneratePassword
 	}
 	return string(hashedPassword), nil
 }
