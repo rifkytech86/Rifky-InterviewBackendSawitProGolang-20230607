@@ -184,3 +184,29 @@ func Test_jwtRSATokenRepository_ParserToken(t *testing.T) {
 		})
 	}
 }
+
+func TestNewJWTRSAToken(t *testing.T) {
+	type args struct {
+		privateKey []byte
+		publicKey  []byte
+	}
+	tests := []struct {
+		name string
+		args args
+		want IJWTRSAToken
+	}{
+		{
+			name: "NEW JWT TOKEN",
+			args: args{
+				publicKey:  []byte("TESTER"),
+				privateKey: []byte("TESTER"),
+			},
+			want: NewJWTRSAToken([]byte("TESTER"), []byte("TESTER")),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, NewJWTRSAToken(tt.args.privateKey, tt.args.publicKey), "NewJWTRSAToken(%v, %v)", tt.args.privateKey, tt.args.publicKey)
+		})
+	}
+}

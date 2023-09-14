@@ -406,6 +406,12 @@ func TestServer_UpdateProfile(t *testing.T) {
 	setContext := validatorFailed()
 	setContext.Set("userID", 2)
 
+	setContext2 := validatorFailed()
+	setContext2.Set("userID", 2)
+
+	setContext3 := validatorFailed()
+	setContext3.Set("userID", 2)
+
 	type fields struct {
 		UserServiceRepository repository.IUserServicePointRepository
 		Validator             bootstrap.IValidator
@@ -465,7 +471,7 @@ func TestServer_UpdateProfile(t *testing.T) {
 		{
 			name: "error Update profile update non duplicate",
 			args: args{
-				c: setContext,
+				c: setContext3,
 			},
 			resMocUpdateUsers: commons.ErrorInternalServer,
 			respMockValidator: []bootstrap.ValidationError{},
@@ -474,7 +480,7 @@ func TestServer_UpdateProfile(t *testing.T) {
 		{
 			name: "success update profile",
 			args: args{
-				c: setContext,
+				c: setContext2,
 			},
 			resMocUpdateUsers: nil,
 			respMockValidator: []bootstrap.ValidationError{},
